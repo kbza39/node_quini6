@@ -7,10 +7,18 @@ import { Numero, TodosLosNumeros } from '../../interfaces/TodosLosNumeros';
 const axios = require('axios').default;
 const router = express.Router();
 
+// Configuración de encabezado para evitar el error 403
+const requestConfig = {
+  headers: {
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+  }
+};
+
 const obtenerListaSorteos = async () : Promise<Sorteo[]> => {
   const url2Get = 'https://www.quini-6-resultados.com.ar/quini6/sorteos-anteriores.aspx';
   try {
-    const response = await axios.get(url2Get);
+    // Aplicamos la configuración con el User-Agent
+    const response = await axios.get(url2Get, requestConfig);
     const $ = cheerio.load(response.data);
     const resp: Sorteo[] = [];
     $('div.col-md-3 p a').each((i, el) => {
@@ -48,19 +56,19 @@ const obtenerResultadoSorteo = async (nroSorteo: number) : Promise<ResultadoSort
   const listaSorteos = await obtenerListaSorteos();
   const resBusca = searchJSON(listaSorteos, 'numero', nroSorteo.toString());
   const url2Get = resBusca[0].link;
-  // const retorno = {} as ResultadoSorteo;
+  
   const retorno:ResultadoSorteo = {
     infoSorteo: resBusca,
     resultados: [],
   };
 
   return new Promise(async (resolve, reject) => {
-
     try {
-
-      const response = await axios.get(url2Get);
+      // Aplicamos la configuración con el User-Agent
+      const response = await axios.get(url2Get, requestConfig);
       const $ = cheerio.load(response.data);
       
+      // ... resto de tu código sin cambios ...
       // 1 SORTEO TRADICIONAL
       retorno.resultados.push({
         titulo: 'SORTEO TRADICIONAL',
@@ -166,6 +174,7 @@ const obtenerTodosLosSorteos = async () : Promise<ResultadoSorteo[]> => {
   }));
 };
 
+// ... resto de las rutas del router sin cambios ...
 router.get('/', (req, res) => {
   res.json({
     message: 'Sitio: https://www.quini-6-resultados.com.ar/',
@@ -175,7 +184,6 @@ router.get('/', (req, res) => {
 router.get('/sorteos', async (req, res) => {
   try {
     const datos = await obtenerListaSorteos();
-    // Ordena los sorteos por número de sorteo (fecha) en orden descendiente (el ultimo sorteo primero)
     datos.sort((a, b) => {  
       return parseInt(a.numero) <= parseInt(b.numero)
         ? 1
@@ -216,7 +224,7 @@ router.get('/todoslosnumeros', async (req, res) => {
     let numerosSegunda : Numero[] = [];
     let numerosRevancha : Numero[] = [];
     let numerosSiempreSale : Numero[] = [];
-    let numArre:any[] = []; // Para almacenar de cuajo todos los numeros
+    let numArre:any[] = []; 
     for (let dd = 0; dd < datos.length; dd++) {
       let dataSorteo = datos[dd];
       for (let ds = 0; ds < dataSorteo.resultados.length; ds++) {
@@ -256,7 +264,6 @@ router.get('/todoslosnumeros', async (req, res) => {
               break; 
             } 
             default: { 
-              //statements; 
               break; 
             }
           }
@@ -265,25 +272,21 @@ router.get('/todoslosnumeros', async (req, res) => {
       }
     }
 
-    // 1 SORTEO TRADICIONAL
     datosFinales.tiposorteo.push({
       titulo: 'SORTEO TRADICIONAL',
       numeros: numerosTradicional,
     });
 
-    // 2 SORTEO LA SEGUNDA
     datosFinales.tiposorteo.push({
       titulo: 'LA SEGUNDA DEL QUINI',
       numeros: numerosSegunda,
     });
 
-    // 3 SORTEO REVANCHA
     datosFinales.tiposorteo.push({
       titulo: 'SORTEO REVANCHA',
       numeros: numerosRevancha,
     });
     
-    // 4 SIEMPRE SALE
     datosFinales.tiposorteo.push({
       titulo: 'SIEMPRE SALE',
       numeros: numerosSiempreSale,
