@@ -4,11 +4,11 @@
   "description": "Api en NodeJS/Express/Cheerio para obtener los resultados del Quini 6",
   "main": "src/index.ts",
   "scripts": {
-    "start": "node dist/src/index.js",
-    "dev": "nodemon src/index.ts",
-    "build": "tsc",
-    "lint": "eslint --fix src test"
-  },
+  "start": "node dist/index.js",
+  "dev": "nodemon src/index.ts",
+  "build": "tsc",
+  "lint": "eslint --fix src test"
+}
   "keywords": [],
   "author": "Enrique Becerra <kabeza@gmail.com> (https://beza.com.ar)",
   "repository": {
