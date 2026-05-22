@@ -1,8 +1,8 @@
-import * as cheerio from 'cheerio';
+import { Element } from 'cheerio';
 
 export interface Sorteo {
   numero: string,
   titulo: string,
   fecha: string,
-  link: cheerio.Element | string | undefined,
+  link: Element | string | undefined,
 }
